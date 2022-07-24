@@ -18,3 +18,9 @@ Implement a Restful task list API as well as run this application in container.
 ```bash
     $ pytest
 ```
+
+# Run in Docker
+
+```bash
+    $ docker-compose up -d
+```

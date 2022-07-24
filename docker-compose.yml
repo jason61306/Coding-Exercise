@@ -1,0 +1,11 @@
+version: '3'
+services:
+  taskapi:
+     build: .
+     image: taskapi:v1
+     ports:
+       - "5000:5000"
+     volumes:
+       - "./:/app/"      
+     restart: always
+     container_name: taskapi
