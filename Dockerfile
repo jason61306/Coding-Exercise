@@ -6,6 +6,6 @@ ADD . /app
 
 EXPOSE 5000 
 
-RUN pip install -r requirements.txt && flask initdb
+RUN pip install -r requirements.txt
 
-CMD flask run --host 0.0.0.0
+CMD flask initdb ; flask run --host 0.0.0.0
