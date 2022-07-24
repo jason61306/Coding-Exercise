@@ -1,4 +1,5 @@
-from flask import Blueprint, Response
+from flask import Blueprint, request, Response, json
+import sqlite3
 
 task = Blueprint(name="task", import_name=__name__)
 
@@ -20,7 +21,19 @@ def createTask():
           sample:
             {"result": [{"id": 1, "name": "買晚餐", "status": 0}]}
   """
-  return Response (response={}, status=201, mimetype='application/json')
+  data = request.get_json()
+  name = data['name']
+
+  conn = sqlite3.connect("db")
+  _c = conn.cursor()   
+  _c.execute("INSERT INTO tasks(name, status) values(?, ?)", (name, False))
+  conn.commit()
+  _c.execute("SELECT * FROM tasks WHERE id = last_insert_rowid();")
+  task = _c.fetchone()
+  conn.close()
+
+  output = {"result": {"id": task[0], "name": task[1], "status": task[2]}}
+  return Response (response=json.dumps(output), status=201, mimetype='application/json')
 
 
 @task.route('/<int:id>', methods=['PUT'])
@@ -41,7 +54,18 @@ def updateTask(id):
           sample:
             {"result": [{"id": 1, "name": "買晚餐", "status": 1}]}
   """
-  return Response (response={}, status=200, mimetype='application/json')
+  data = request.get_json()
+  name = data['name']
+  status = data['status']
+
+  conn = sqlite3.connect("db")
+  _c = conn.cursor()   
+  _c.execute("UPDATE tasks SET name=?, status=? WHERE id=?;", (name, status, id))
+  conn.commit()
+  conn.close()
+
+  output = {"result": {"id": id, "name": name, "status": status}}
+  return Response (response=json.dumps(output), status=200, mimetype='application/json')
 
 
 @task.route('/<int:id>', methods=['DELETE'])
@@ -52,4 +76,10 @@ def deleteTask(id):
     responses:   
       '200'                       
   """
+
+  conn = sqlite3.connect("db")
+  _c = conn.cursor()
+  _c.execute("DELETE FROM tasks WHERE id=?;", (id,))
+  conn.commit()
+  conn.close()
   return Response(status=200, mimetype='application/json')
